@@ -4,14 +4,16 @@ var obstacleGroup, coinGroup;
 var coinImg, coinSound;
 var score, life;
 var gameState;
-var lifeImg;
-var backgroundSprite, bg1, bg2,GameOverSprite, GameOverImg
+var lifeImg, obstacleImg;
+var backgroundSprite, bg1, bg2,GameOverSprite, GameOver
 function preload(){
   coinImg = loadImage("images/17.png")
   coinSound = loadSound("Sounds/coin.mp3")
   lifeImg = loadImage("images/life.png")
   bg1 = loadImage("images/Background/Bg.png")
+  GameOver = loadImage("images/Background/GameOver.jpg")
   //bg2 = loadImage("images/Background/Bg1.psd")
+  obstacleImg = loadImage("images/Free game obstacle spike/transparent PNG/spike A.png");
 
   playerWalking = loadAnimation("images/player/Walking/Wraith_03_Moving Forward_000.png",
   "images/player/Walking/Wraith_03_Moving Forward_001.png", "images/player/Walking/Wraith_03_Moving Forward_002.png",
@@ -59,12 +61,11 @@ function draw() {
   background("black");  
   imageMode(CENTER)
 image(bg1,800,400,width,800)
-if(keyDown("space") && player.isTouching(ground)){
-  player.velocityY = -15
+if(gameState === "play"){
+if(keyDown("space")){
+  player.velocityY = -20
 }
-else{
-  player.collide(ground)
-}
+
 player.velocityY += 0.8
 
 
@@ -87,6 +88,7 @@ for(var i = 0; i<obstacleGroup.size();i++){
   }
 }
 textSize(60)
+fill(0)
 text(score,1400,80)
 for(var i = life; i>0;i--){
   image(lifeImg, i*50,50,50,50)
@@ -98,32 +100,43 @@ if(life===0){
 if(score===5){
 gameState = "win"
 }
-
-if(gameState==="lose"){
-  textSize(25)
+createObstacles();
+  createCoins();
+  drawSprites();
+}
+else if(gameState==="lose"){
+  textSize(35)
+  fill(0)
+  imageMode(CENTER)
+  image(GameOver,800,400,width,1600)
   text("You Lose",800,400);
   obstacleGroup.setVelocityXEach(0);
   coinGroup.setVelocityXEach(0);
+  obstacleGroup.destroyEach();
+  coinGroup.destroyEach();
 }
 
-if(gameState==="win"){
+else if(gameState==="win"){
   text("You Win",800,400);
   obstacleGroup.setVelocityXEach(0);
   coinGroup.setVelocityXEach(0);
 }
 
-  createObstacles();
-  createCoins();
   
-  drawSprites();
+  player.collide(ground)
+ 
   
 }
 
 function createObstacles(){
  if(frameCount%150===0){
   var obstacle = createSprite(1600,750,50,50)
+  obstacle.addImage(obstacleImg)
+  obstacle.scale = 0.4
+  //obstacle.debug  = true
   obstacle.velocityX = -5
   obstacle.lifetime = 330
+  obstacle.collide(ground)
   obstacleGroup.add(obstacle)
  }
 }
@@ -133,7 +146,7 @@ function createCoins(){
     var coin = createSprite(1600,700,50,50)
     coin.addImage(coinImg)
     coin.scale = 0.1
-    coin.y = Math.round(random(625,650))
+    coin.y = Math.round(random(595,605))
     coin.velocityX = -5
     coin.lifetime = 330
 coinGroup.add(coin)
